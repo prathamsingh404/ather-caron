@@ -22,7 +22,10 @@ export async function GET() {
       aiInsight: insight.insight,
       aiSource: insight.source,
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes("Unauthorized")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("GET Calculate Emissions Error:", error);
     return NextResponse.json({ error: "Failed to calculate emissions summary" }, { status: 500 });
   }

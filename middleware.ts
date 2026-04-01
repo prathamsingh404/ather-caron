@@ -35,13 +35,15 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/api")) {
-    if (!authed) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/";
-      url.searchParams.set("auth", "signin");
-      return NextResponse.redirect(url);
-    }
+  if (pathname.startsWith("/api") && !authed) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (pathname.startsWith("/dashboard") && !authed) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    url.searchParams.set("auth", "signin");
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
@@ -50,4 +52,3 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: ["/dashboard/:path*", "/api/:path*"],
 };
-

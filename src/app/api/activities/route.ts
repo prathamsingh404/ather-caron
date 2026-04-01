@@ -17,7 +17,10 @@ export async function GET() {
     });
 
     return NextResponse.json(activities);
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes("Unauthorized")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("GET Activities Error:", error);
     return NextResponse.json({ error: "Failed to fetch activities" }, { status: 500 });
   }
@@ -53,7 +56,10 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(result);
-  } catch (error) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes("Unauthorized")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("POST Activities Error:", error);
     return NextResponse.json({ error: "Failed to save activity" }, { status: 500 });
   }
