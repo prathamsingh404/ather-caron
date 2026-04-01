@@ -1,0 +1,144 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER & AUTH ====================
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  emailVerified   DateTime?
+  passwordHash    String?   
+  name            String?
+  
+  // Aether-Carbon Neural Profile
+  lifestyle_profile Json?     // { diet: "vegan", transit: "e-bike", grid: "US-CA" }
+  carbon_goal      Float?    // In kg CO2e
+  
+  // Settings
+  unitSystem      UnitSystem @default(METRIC)
+  currency        String    @default("USD")
+  
+  // Gamification: THE REVERSE-SCORE SYSTEM
+  carbon_budget   Float      @default(2000.0) // initial kg for the year
+  totalPoints     Int       @default(0)
+  currentStreak   Int       @default(0)
+  
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Relations
+  activities      Activity[]
+  insights        AiInsight[]
+  reports         Report[]
+  goals           Goal[]
+  
+  @@index([email])
+}
+
+// ==================== THE ACTIVITY LEDGER ====================
+
+model Activity {
+  id            String      @id @default(cuid())
+  userId        String
+  category      Category
+  subcategory   String      
+  raw_value     Float       
+  unit          String      
+  facility      String?
+  carbon_equivalent Float   // Output of the DEI logic
+  
+  // Optimization Data
+  optimization_recommendation String? @db.Text
+  potential_savings_kg      Float?
+  
+  // Metadata
+  source        InputMethod @default(MANUAL) // Manual, OCR, API
+  date          DateTime    @default(now())
+  
+  // Relations
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, date])
+}
+
+// ==================== INSIGHT CACHE (THE COACH) ====================
+
+model AiInsight {
+  id                String   @id @default(cuid())
+  userId            String
+  ai_suggestion     String   @db.Text
+  impact_predicted  Float?   // Predicted kg saved
+  status            InsightStatus @default(NEW) // Accepted, Ignored
+  
+  createdAt         DateTime @default(now())
+  
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, status])
+}
+
+// ==================== REPORTS ====================
+
+model Report {
+  id          String     @id @default(cuid())
+  userId      String
+  periodStart DateTime
+  periodEnd   DateTime
+  summary     String     @db.Text  // AI generated Executive Summary
+  fileUrl     String?    
+  
+  createdAt   DateTime   @default(now())
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ==================== GOALS ====================
+
+model Goal {
+  id            String     @id @default(cuid())
+  userId        String
+  title         String
+  targetValue   Float      
+  currentValue  Float      @default(0)
+  category      Category?  
+  deadline      DateTime
+  
+  createdAt     DateTime   @default(now())
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ==================== ENUMS ====================
+
+enum InsightStatus {
+  NEW
+  ACCEPTED
+  IGNORED
+}
+
+enum InputMethod {
+  MANUAL
+  OCR
+  API
+}
+
+enum Category {
+  TRANSPORT
+  ENERGY
+  FOOD
+  WASTE
+  SHOPPING
+  WATER
+}
+
+enum UnitSystem {
+  METRIC
+  IMPERIAL
+}

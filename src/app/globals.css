@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --border: #e2e8f0;
+  --card-bg: #ffffff;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --accent: #4ade80;
+  --accent-hover: #22c55e;
+  --border: #334155;
+  --card-bg: #1e293b;
+}
+
+body {
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at top, rgba(16, 185, 129, 0.08), transparent 34%),
+    radial-gradient(circle at right, rgba(56, 189, 248, 0.08), transparent 26%),
+    var(--background);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+/* Ambient Glow Layer */
+.ambient-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 20%, rgba(255,255,255,0.7) 0%, transparent 60%);
+  transition: background 0.8s ease;
+}
+
+.dark .ambient-glow {
+  background: radial-gradient(ellipse at 50% 20%, rgba(34, 197, 94, 0.15) 0%, transparent 60%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Shimmer Button */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: translateX(-200%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+  border-radius: 9999px;
+}
+
+.btn-shimmer:hover::before {
+  transform: translateX(200%);
+}
+
+/* Spotlight Card */
+.spotlight-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(250px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(34, 197, 94, 0.06) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .spotlight-card::before {
+  background: radial-gradient(250px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(34, 197, 94, 0.15) 0%, transparent 70%);
+}
+
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+
+.spotlight-content {
+  position: relative;
+  z-index: 10;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 20px 70px rgba(15, 23, 42, 0.08);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.52);
+  box-shadow: 0 20px 70px rgba(2, 6, 23, 0.34);
+}
+
+.animate-gradient-shift {
+  background-size: 200% auto;
+  animation: gradient-shift 5s ease-in-out infinite alternate;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% center; }
+  100% { background-position: 100% center; }
+}
+
+.icon-container {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.spotlight-card:hover .icon-container {
+  transform: scale(1.1) rotate(5deg);
+}
